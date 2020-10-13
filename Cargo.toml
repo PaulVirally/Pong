@@ -1,0 +1,37 @@
+[package]
+name = "pong"
+version = "0.1.0"
+authors = ["Paul Virally <pvirally@gmail.com>"]
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib"]
+
+[profile.release]
+lto = true
+# debug = true
+
+[dependencies]
+js-sys = "0.3.45"
+wasm-bindgen = "0.2.68"
+console_error_panic_hook = "0.1.6"
+
+[dependencies.rand]
+version = "0.7.3"
+features = ["wasm-bindgen"]
+
+[dependencies.web-sys]
+version = "0.3.45"
+features = [
+    "Document",
+    "Element",
+    "HtmlCanvasElement",
+    "KeyboardEvent",
+    "WebGl2RenderingContext",
+    "WebGlBuffer",
+    "WebGlProgram",
+    "WebGlShader",
+    "WebGlVertexArrayObject",
+    "Window",
+    "console",
+]

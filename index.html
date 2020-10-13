@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Pong</title>
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
+        <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"> 
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+        <p id="p1-score">0</p1>
+        <p id="p2-score">0</p2>
+        <script type="module">
+            import init from './pkg/pong.js';
+
+            async function run() {
+                await init();
+            }
+
+            run();
+        </script>
+    </body>
+</html>

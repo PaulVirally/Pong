@@ -1,0 +1,22 @@
+html, body {
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
+p {
+    position: absolute;
+    color: white;
+    top: 25%;
+    font-size: 32pt;
+    text-align: center;
+    font-family: 'Press Start 2P', monospace;
+}
+
+#p1-score {
+    left: 33%;    
+}
+
+#p2-score {
+    left: 66%;    
+}
