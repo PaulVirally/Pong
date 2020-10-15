@@ -1,33 +1,32 @@
-use std::panic;
+// use std::panic;
 
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
-use web_sys::WebGl2RenderingContext;
+use web_sys::WebGlRenderingContext;
 
-extern crate console_error_panic_hook;
+// extern crate console_error_panic_hook;
 
 mod game_object;
 mod game_manager;
 use game_manager::GameManager;
 
-static VERT_SHADER_SRC: &str = r#"#version 300 es
-    layout(location=0) in vec2 attr_position;
+static VERT_SHADER_SRC: &str = r#"#version 100
+    attribute vec2 attr_position;
     void main() {
-        gl_Position = vec4(attr_position, 0.f, 1.f);
+        gl_Position = vec4(attr_position, 0.0, 1.0);
     }
 "#;
 
-static FRAG_SHADER_SRC: &str = r#"#version 300 es
+static FRAG_SHADER_SRC: &str = r#"#version 100
     precision mediump float;
-    out vec4 frag_color;
     void main() {
-        frag_color = vec4(1.f, 1.f, 1.f, 1.f);
+        gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
     }
 "#;
 
 #[wasm_bindgen(start)]
 pub fn main() -> Result<(), JsValue> {
-    panic::set_hook(Box::new(console_error_panic_hook::hook));
+    // panic::set_hook(Box::new(console_error_panic_hook::hook));
 
     let window = web_sys::window().expect("no global `window` exists");
     let document = window.document().expect("`window` does not have a `document`");
@@ -40,7 +39,7 @@ pub fn main() -> Result<(), JsValue> {
     canvas.set_height(win_size.1);
     body.append_child(canvas.as_ref())?;
 
-    let context = canvas.get_context("webgl2")?.expect("Browser does not support webgl2").dyn_into::<WebGl2RenderingContext>()?;
+    let context = canvas.get_context("webgl")?.expect("Browser does not support webgl").dyn_into::<WebGlRenderingContext>()?;
 
     let mut gm = GameManager::new(context, VERT_SHADER_SRC, FRAG_SHADER_SRC, win_size.0 as f32, win_size.1 as f32)?;
     gm.init_event_handlers(&document)?;

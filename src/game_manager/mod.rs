@@ -3,7 +3,7 @@ use std::cell::RefCell;
 
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
-use web_sys::{WebGlProgram, WebGlShader, WebGl2RenderingContext};
+use web_sys::{WebGlProgram, WebGlShader, WebGlRenderingContext};
 use js_sys::Date;
 
 use crate::game_object::{ball, paddle, traits::{Draw, Step}};
@@ -14,7 +14,7 @@ extern crate rand;
 use rand::prelude::*;
 
 pub struct GameManager {
-    context: WebGl2RenderingContext,
+    context: WebGlRenderingContext,
     win_width: f32,
     win_height: f32,
 
@@ -26,13 +26,15 @@ pub struct GameManager {
 }
 
 impl GameManager {
-    pub fn new(context: WebGl2RenderingContext, vert_shader_src: &str, frag_shader_src: &str, win_width: f32, win_height: f32) -> Result<GameManager, JsValue> {
-        let vert_shader = Self::compile_shader(&context, WebGl2RenderingContext::VERTEX_SHADER, vert_shader_src)?;
-        let frag_shader = Self::compile_shader(&context, WebGl2RenderingContext::FRAGMENT_SHADER, frag_shader_src)?;
+    pub fn new(context: WebGlRenderingContext, vert_shader_src: &str, frag_shader_src: &str, win_width: f32, win_height: f32) -> Result<GameManager, JsValue> {
+        let vert_shader = Self::compile_shader(&context, WebGlRenderingContext::VERTEX_SHADER, vert_shader_src)?;
+        let frag_shader = Self::compile_shader(&context, WebGlRenderingContext::FRAGMENT_SHADER, frag_shader_src)?;
         let program = Self::link_program(&context, &vert_shader, &frag_shader)?;
         context.use_program(Some(&program));
         context.delete_shader(Some(&vert_shader));
         context.delete_shader(Some(&frag_shader));
+
+        context.bind_attrib_location(&program, 0, "attr_position");
 
         let paddle_width = win_width.min(win_height)/50.0;
         let paddle_height = win_width.min(win_height)/5.0;
@@ -111,7 +113,6 @@ impl GameManager {
         let window2 = web_sys::window().expect("Could not get window");
         let window3 = web_sys::window().expect("Could not get window");
 
-        // let mut animate_callback = Closure::wrap(Box::new(move || {}) as Box<dyn FnMut()>); // We will initialize the callback in just a sec
         let animate_callback = Rc::new(RefCell::new(Closure::wrap(Box::new(move || {}) as Box<dyn FnMut()>))); // We will initialize the callback in just a sec
         let animate_callback_clone = animate_callback.clone();
         let animate_callback_clone2 = animate_callback.clone();
@@ -183,7 +184,7 @@ impl GameManager {
 
             // Clear
             context_clone.clear_color(0.0, 0.0, 0.0, 1.0);
-            context_clone.clear(WebGl2RenderingContext::COLOR_BUFFER_BIT);
+            context_clone.clear(WebGlRenderingContext::COLOR_BUFFER_BIT);
 
             // Draw
             ball_clone.borrow_mut().draw(&context_clone, win_width, win_height);
@@ -194,26 +195,19 @@ impl GameManager {
         }) as Box<dyn FnMut()>);
         window3.request_animation_frame(animate_callback_clone.borrow_mut().as_ref().unchecked_ref())?;
 
-        // console::log_1(&"forget: animate".into());
-        // Rc::try_unwrap(animate_callback).ok().unwrap().into_inner().forget();
-        // console::log_1(&"forget: timeout".into());
-        // Rc::try_unwrap(timeout_callback).ok().unwrap().into_inner().forget();
-
         Ok(())
-
-        // TODO: Delete GL stuff
     }
 
     fn within(x: f32, y: f32, tolerance: f32) -> bool {
         x < y+tolerance && x > y-tolerance
     }
 
-    fn compile_shader(context: &WebGl2RenderingContext, shader_type: u32, source: &str) -> Result<WebGlShader, String> {
+    fn compile_shader(context: &WebGlRenderingContext, shader_type: u32, source: &str) -> Result<WebGlShader, String> {
         let shader = context.create_shader(shader_type).ok_or_else(|| String::from("Unable to create shader object"))?;
         context.shader_source(&shader, &source);
         context.compile_shader(&shader);
 
-        if context.get_shader_parameter(&shader, WebGl2RenderingContext::COMPILE_STATUS).as_bool().unwrap_or(false) {
+        if context.get_shader_parameter(&shader, WebGlRenderingContext::COMPILE_STATUS).as_bool().unwrap_or(false) {
             Ok(shader)
         }
         else {
@@ -221,13 +215,13 @@ impl GameManager {
         }
     }
 
-    fn link_program(context: &WebGl2RenderingContext, vert_shader: &WebGlShader, frag_shader: &WebGlShader) -> Result<WebGlProgram, String> {
+    fn link_program(context: &WebGlRenderingContext, vert_shader: &WebGlShader, frag_shader: &WebGlShader) -> Result<WebGlProgram, String> {
         let program = context.create_program().ok_or_else(|| String::from("Unable to create program object"))?;
         context.attach_shader(&program, vert_shader);
         context.attach_shader(&program, frag_shader);
         context.link_program(&program);
 
-        if context.get_program_parameter(&program, WebGl2RenderingContext::LINK_STATUS).as_bool().unwrap_or(false) {
+        if context.get_program_parameter(&program, WebGlRenderingContext::LINK_STATUS).as_bool().unwrap_or(false) {
             Ok(program)
         }
         else {

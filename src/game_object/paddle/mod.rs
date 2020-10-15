@@ -1,4 +1,4 @@
-use web_sys::{WebGlBuffer, WebGl2RenderingContext};
+use web_sys::{WebGlBuffer, WebGlRenderingContext};
 use crate::game_object::traits::{Draw, Step};
 
 pub struct Paddle {
@@ -9,7 +9,7 @@ pub struct Paddle {
     dir: f32,
 
     vertices: [f32; 4*2],
-    idxs: [u32; 6],
+    idxs: [u16; 6],
     vbo: Option<WebGlBuffer>,
     ebo: Option<WebGlBuffer>
 }
@@ -63,7 +63,7 @@ impl Paddle {
 }
 
 impl Draw for Paddle {
-    fn init_gl(&mut self, context: &WebGl2RenderingContext, win_width: f32, win_height: f32) {
+    fn init_gl(&mut self, context: &WebGlRenderingContext, win_width: f32, win_height: f32) {
         // Vertices
         self.update_vertices(win_width, win_height);
 
@@ -80,50 +80,50 @@ impl Draw for Paddle {
         self.ebo = context.create_buffer();
 
         // Bind and set VBO
-        context.bind_buffer(WebGl2RenderingContext::ARRAY_BUFFER, self.vbo.as_ref());
+        context.bind_buffer(WebGlRenderingContext::ARRAY_BUFFER, self.vbo.as_ref());
         unsafe {
             let vbo_array = js_sys::Float32Array::view(&self.vertices);
-            context.buffer_data_with_array_buffer_view(WebGl2RenderingContext::ARRAY_BUFFER, &vbo_array, WebGl2RenderingContext::DYNAMIC_DRAW);
+            context.buffer_data_with_array_buffer_view(WebGlRenderingContext::ARRAY_BUFFER, &vbo_array, WebGlRenderingContext::DYNAMIC_DRAW);
         }
 
         // Bind and set EBO
-        context.bind_buffer(WebGl2RenderingContext::ELEMENT_ARRAY_BUFFER, self.ebo.as_ref());
+        context.bind_buffer(WebGlRenderingContext::ELEMENT_ARRAY_BUFFER, self.ebo.as_ref());
         unsafe {
-            let ebo_array = js_sys::Uint32Array::view(&self.idxs);
-            context.buffer_data_with_array_buffer_view(WebGl2RenderingContext::ELEMENT_ARRAY_BUFFER, &ebo_array, WebGl2RenderingContext::STATIC_DRAW);
+            let ebo_array = js_sys::Uint16Array::view(&self.idxs);
+            context.buffer_data_with_array_buffer_view(WebGlRenderingContext::ELEMENT_ARRAY_BUFFER, &ebo_array, WebGlRenderingContext::STATIC_DRAW);
         }
 
         // Vertex position
-        context.vertex_attrib_pointer_with_i32(0, 2, WebGl2RenderingContext::FLOAT, false, 0, 0);
+        context.vertex_attrib_pointer_with_i32(0, 2, WebGlRenderingContext::FLOAT, false, 0, 0);
         context.enable_vertex_attrib_array(0);
 
         // Unbind VBO
-        context.bind_buffer(WebGl2RenderingContext::ARRAY_BUFFER, None);
+        context.bind_buffer(WebGlRenderingContext::ARRAY_BUFFER, None);
     }
 
-    fn draw(&mut self, context: &WebGl2RenderingContext, win_width: f32, win_height: f32) {
+    fn draw(&mut self, context: &WebGlRenderingContext, win_width: f32, win_height: f32) {
         // Vertices
         self.update_vertices(win_width, win_height);
 
         // Bind and set VBO
-        context.bind_buffer(WebGl2RenderingContext::ARRAY_BUFFER, self.vbo.as_ref());
+        context.bind_buffer(WebGlRenderingContext::ARRAY_BUFFER, self.vbo.as_ref());
         unsafe {
             let vbo_array = js_sys::Float32Array::view(&self.vertices);
-            context.buffer_sub_data_with_i32_and_array_buffer_view(WebGl2RenderingContext::ARRAY_BUFFER, 0, &vbo_array);
+            context.buffer_sub_data_with_i32_and_array_buffer_view(WebGlRenderingContext::ARRAY_BUFFER, 0, &vbo_array);
         }
 
         // Bind EBO
-        context.bind_buffer(WebGl2RenderingContext::ELEMENT_ARRAY_BUFFER, self.ebo.as_ref());
+        context.bind_buffer(WebGlRenderingContext::ELEMENT_ARRAY_BUFFER, self.ebo.as_ref());
         
         // Vertex position
-        context.vertex_attrib_pointer_with_i32(0, 2, WebGl2RenderingContext::FLOAT, false, 0, 0);
+        context.vertex_attrib_pointer_with_i32(0, 2, WebGlRenderingContext::FLOAT, false, 0, 0);
         context.enable_vertex_attrib_array(0);
 
         // Unbind VBO
-        context.bind_buffer(WebGl2RenderingContext::ARRAY_BUFFER, None);
+        context.bind_buffer(WebGlRenderingContext::ARRAY_BUFFER, None);
 
         // Draw
-        context.draw_elements_with_i32(WebGl2RenderingContext::TRIANGLES, self.idxs.len() as i32, WebGl2RenderingContext::UNSIGNED_INT, 0);
+        context.draw_elements_with_i32(WebGlRenderingContext::TRIANGLES, self.idxs.len() as i32, WebGlRenderingContext::UNSIGNED_SHORT, 0);
     }
 }
 

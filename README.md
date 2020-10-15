@@ -1,5 +1,5 @@
-# Pong in WebAssembly with WebGL2
-This is a version of the classic Pong game written in Rust with a WebAssembly target that utilizes WebGL2 to render the graphics.
+# Pong in WebAssembly with WebGL
+This is a version of the classic Pong game written in Rust with a WebAssembly target that utilizes WebGL to render the graphics.
 
 # Compiling and Running
 To compile to a WASM target, install [wasm-pack](https://github.com/rustwasm/wasm-pack) then run the following from the root directory of this repo:
